@@ -1,0 +1,17 @@
+services:
+  greenhouse-emulator:
+    build: .
+    ports:
+      - "30103:30103"
+      - "5432:5432"
+    environment:
+      DB_HOST: "host.docker.internal"
+      DB_PORT: "5432"
+      DB_USER: "postgres"
+      DB_PASS: "1234"
+      DB_NAME: "EmulatorGreenhouse"
+      LOG_LEVEL: "DEBUG"
+      LOG_FORMAT: "PLAIN"
+      API_SERVER_HOST: "0.0.0.0"
+      API_SERVER_PORT: "30103"
+    restart: unless-stopped

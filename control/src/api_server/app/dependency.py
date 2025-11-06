@@ -1,0 +1,3 @@
+from infrastructure.interfaces import AuthServiceInterface
+
+auth_service: AuthServiceInterface
