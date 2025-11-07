@@ -1,13 +1,14 @@
-import os
 import asyncio
+import os
 
 from api_server import create_app, start_api_server
+from infrastructure.assessment_service import AssessmentInteractor
+from infrastructure.auth_service import AuthService
+from infrastructure.greenhouses_service import GreenhouseInteractor
 from log4py import logger
 from managers import StatisticsManager
 from managers.updater import Updater
-from infrastructure.assessment_service import AssessmentInteractor
-from infrastructure.greenhouses_service import GreenhouseInteractor
-from infrastructure.auth_service import AuthService
+
 
 async def main() -> int:
     greenhouse_interactor_url = os.getenv("GREENHOUSE_SERVICE")
@@ -31,11 +32,7 @@ async def main() -> int:
         return 1
 
     try:
-        app = create_app(
-            statistic_manager,
-            updater_manager,
-            auth_service
-        )
+        app = create_app(statistic_manager, updater_manager, auth_service)
     except Exception:
         msg_crit = "Error during service's initialization. Check configs."
         logger.critical(msg_crit)

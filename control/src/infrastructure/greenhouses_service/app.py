@@ -2,11 +2,11 @@ from http import HTTPMethod, HTTPStatus
 
 import httpx
 from httpx import AsyncClient
-
+from infrastructure.interfaces import (GreenhousesInteractorInterface,
+                                       MeteringRequest)
 from log4py import logger
 
 from . import errors
-from infrastructure.interfaces import GreenhousesInteractorInterface, MeteringRequest
 
 
 class GreenhouseInteractor(GreenhousesInteractorInterface):
@@ -35,7 +35,7 @@ class GreenhouseInteractor(GreenhousesInteractorInterface):
         request = httpx.Request(
             url=f"{self._url}/temperature",
             method="POST",
-            json=metering_request.to_dict()
+            json=metering_request.to_dict(),
         )
 
         logger.debug("Getting temperature metering.")
@@ -51,9 +51,7 @@ class GreenhouseInteractor(GreenhousesInteractorInterface):
     @errors.catch_errors
     async def get_humidity_metering(self, metering_request: MeteringRequest):
         request = httpx.Request(
-            url=f"{self._url}/humidity",
-            method="POST",
-            json=metering_request.to_dict()
+            url=f"{self._url}/humidity", method="POST", json=metering_request.to_dict()
         )
 
         logger.debug("Getting humidity metering.")
@@ -69,9 +67,7 @@ class GreenhouseInteractor(GreenhousesInteractorInterface):
     @errors.catch_errors
     async def get_ph_metering(self, metering_request: MeteringRequest):
         request = httpx.Request(
-            url=f"{self._url}/ph",
-            method="POST",
-            json=metering_request.to_dict()
+            url=f"{self._url}/ph", method="POST", json=metering_request.to_dict()
         )
 
         logger.debug("Getting PH metering.")
@@ -83,7 +79,6 @@ class GreenhouseInteractor(GreenhousesInteractorInterface):
             raise errors.ParsingResponseError(message=str(exc))
 
         return data
-
 
     async def _send_request(self, request: httpx.Request) -> httpx.Response:
         async with AsyncClient() as client:

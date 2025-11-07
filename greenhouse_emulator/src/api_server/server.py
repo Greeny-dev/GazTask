@@ -1,6 +1,5 @@
 import uvicorn
 from fastapi import FastAPI
-
 from log4py import logger
 from log4py.rest_logs import DisableLoggingConfig
 

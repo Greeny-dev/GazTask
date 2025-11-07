@@ -1,8 +1,7 @@
+from infrastructure.database import Base
 from sqlalchemy import (Column, DateTime, ForeignKey, Integer, Numeric,
                         SmallInteger, String, func)
 from sqlalchemy.orm import relationship
-
-from infrastructure.database import Base
 
 
 class Region(Base):

@@ -1,20 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from infrastructure.interfaces import AuthServiceInterface
 from log4py.rest_logs import RequestIDMiddleware, RequestLoggingMiddleware
 from managers.interfaces import StatisticManagerInterface, UpdaterInterface
 
+from . import dependency
+from .middlewares import AuthMiddleware
 from .statistic import statistic_dependency, statistic_router
 from .update import update_dependency, update_router
-from .middlewares import AuthMiddleware
-from . import dependency
 
 
 def create_app(
-        statistic_manager: StatisticManagerInterface,
-        updater_manager: UpdaterInterface,
-        auth_service: AuthServiceInterface
+    statistic_manager: StatisticManagerInterface,
+    updater_manager: UpdaterInterface,
+    auth_service: AuthServiceInterface,
 ) -> FastAPI:
     app = FastAPI()
 

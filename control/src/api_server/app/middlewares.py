@@ -1,15 +1,18 @@
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+
 from . import dependency
+
 
 class AuthMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
 
-
     async def dispatch(self, request: Request, call_next):
-        if request.url.path.startswith("/docs") or request.url.path.startswith("/openapi"):
+        if request.url.path.startswith("/docs") or request.url.path.startswith(
+            "/openapi"
+        ):
             return await call_next(request)
 
         auth_header = request.headers.get("Authorization")

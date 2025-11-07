@@ -22,22 +22,14 @@ class WebSocketEvent(StrEnum):
         return f"websocket.{self}"
 
 
-class ReceiveEvent(
-    HTTPEvent, WebSocketEvent
-):
+class ReceiveEvent(HTTPEvent, WebSocketEvent):
     REQUEST = "request"
     DISCONNECT = "disconnect"
-    WEBSOCKET_CONNECT = (
-        "websocket.connect"
-    )
-    WEBSOCKET_DISCONNECT = (
-        "websocket.disconnect"
-    )
+    WEBSOCKET_CONNECT = "websocket.connect"
+    WEBSOCKET_DISCONNECT = "websocket.disconnect"
 
 
-class SendEvent(
-    HTTPEvent, WebSocketEvent
-):
+class SendEvent(HTTPEvent, WebSocketEvent):
     RESPONSE_START = "response.start"
     RESPONSE_BODY = "response.body"
     WEBSOCKET_MESSAGE = "websocket.message"

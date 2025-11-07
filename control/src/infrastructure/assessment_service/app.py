@@ -2,15 +2,15 @@ from http import HTTPMethod, HTTPStatus
 
 import httpx
 from httpx import AsyncClient
-
+from infrastructure.interfaces import (AssessmentInteractorInterface,
+                                       Measurement)
 from log4py import logger
 
 from . import errors
-from infrastructure.interfaces import AssessmentInteractorInterface, Measurement
 
 
 class AssessmentInteractor(AssessmentInteractorInterface):
-    def __init__(self, url: str, timeout: int = 60*20):
+    def __init__(self, url: str, timeout: int = 60 * 20):
         self._url = url
         self._timeout = timeout
 
@@ -19,7 +19,9 @@ class AssessmentInteractor(AssessmentInteractorInterface):
         request = httpx.Request(
             url=f"{self._url}/greenhouse_state",
             method=HTTPMethod.POST,
-            json={"measurements": [measurement.to_dict() for measurement in measurements]}
+            json={
+                "measurements": [measurement.to_dict() for measurement in measurements]
+            },
         )
 
         logger.debug("Started getting greenhouse state info.")

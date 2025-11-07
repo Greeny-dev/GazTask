@@ -1,9 +1,8 @@
 import uuid
 
+from log4py import logger
 from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
-
-from log4py import logger
 
 from .. import specs
 from .common import unattached_send

@@ -1,12 +1,11 @@
 import datetime
 import math
 
-from sqlalchemy import select, func, update
+from infrastructure.database import async_session_maker
+from log4py import logger
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import selectinload
 
-from log4py import logger
-
-from infrastructure.database import async_session_maker
 from ..interfaces import StatisticManagerInterface
 from .models import Greenhouse, Metering, Region, StatusHistory
 
@@ -26,7 +25,9 @@ class StatisticsManager(StatisticManagerInterface):
             {"value": 2, "label": "Угроза"},
         ]
 
-        logger.debug(f"Loaded {len(regions)} regions and {len(states)} states for filters")
+        logger.debug(
+            f"Loaded {len(regions)} regions and {len(states)} states for filters"
+        )
 
         return {
             "regions": regions,
@@ -34,15 +35,10 @@ class StatisticsManager(StatisticManagerInterface):
         }
 
     async def get_greenhouses_statistics(
-            self,
-            region_id: int | None = None,
-            state: int | None = None
+        self, region_id: int | None = None, state: int | None = None
     ):
         async with async_session_maker() as session:
-            query = (
-                select(Greenhouse)
-                .options(selectinload(Greenhouse.region))
-            )
+            query = select(Greenhouse).options(selectinload(Greenhouse.region))
 
             if region_id is not None:
                 query = query.where(Greenhouse.region_id == region_id)
@@ -54,16 +50,22 @@ class StatisticsManager(StatisticManagerInterface):
 
             stats = []
             for g in greenhouses:
-                stats.append({
-                    "id": g.id,
-                    "name": g.name,
-                    "region_id": g.region.id if g.region else None,
-                    "region_name": g.region.name if g.region else None,
-                    "state": g.state,
-                    "updated_at": g.updated_at.isoformat() if g.updated_at else None,
-                })
+                stats.append(
+                    {
+                        "id": g.id,
+                        "name": g.name,
+                        "region_id": g.region.id if g.region else None,
+                        "region_name": g.region.name if g.region else None,
+                        "state": g.state,
+                        "updated_at": (
+                            g.updated_at.isoformat() if g.updated_at else None
+                        ),
+                    }
+                )
 
-            logger.debug(f"Loaded {len(stats)} greenhouses (region_id={region_id}, state={state})")
+            logger.debug(
+                f"Loaded {len(stats)} greenhouses (region_id={region_id}, state={state})"
+            )
 
         return stats
 
@@ -81,7 +83,9 @@ class StatisticsManager(StatisticManagerInterface):
             result = await session.execute(query)
             meterings = result.scalars().all()
 
-            count_query = await session.execute(select(func.count()).select_from(Metering))
+            count_query = await session.execute(
+                select(func.count()).select_from(Metering)
+            )
             total_count = count_query.scalar_one()
 
             total_pages = math.ceil(total_count / self.__METERINGS_PAGE_SIZE)
@@ -104,7 +108,9 @@ class StatisticsManager(StatisticManagerInterface):
             }
 
     async def update_metering_value(self, metering_id: int, new_value: float):
-        logger.debug(f"Started updating metering #{metering_id} with new value {new_value}.")
+        logger.debug(
+            f"Started updating metering #{metering_id} with new value {new_value}."
+        )
 
         async with async_session_maker() as session:
             existing_query = await session.execute(
@@ -118,7 +124,9 @@ class StatisticsManager(StatisticManagerInterface):
 
             old_value = float(metering.value)
             if old_value == new_value:
-                logger.debug(f"Metering #{metering_id} already has value {new_value}. No changes made.")
+                logger.debug(
+                    f"Metering #{metering_id} already has value {new_value}. No changes made."
+                )
                 return {"message": "No update needed"}
 
             await session.execute(
@@ -128,7 +136,9 @@ class StatisticsManager(StatisticManagerInterface):
             )
             await session.commit()
 
-            logger.info(f"Metering #{metering_id} updated from {old_value} to {new_value}.")
+            logger.info(
+                f"Metering #{metering_id} updated from {old_value} to {new_value}."
+            )
             return {"id": metering_id, "old_value": old_value, "new_value": new_value}
 
     async def get_greenhouse_status_history(self, greenhouse_id: int):

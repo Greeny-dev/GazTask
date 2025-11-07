@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from log4py.rest_logs import RequestIDMiddleware, RequestLoggingMiddleware
 from managers.interfaces import GreenhousesManagerInterface
 

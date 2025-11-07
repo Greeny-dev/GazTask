@@ -1,2 +1,1 @@
-from . import interfaces
-from . import database
+from . import database, interfaces

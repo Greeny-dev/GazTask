@@ -1,17 +1,18 @@
 import asyncio
 from datetime import datetime, timedelta
 from statistics import mean
-
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any
 
-from log4py import logger
-
-from infrastructure.interfaces import MeteringRequest, GreenhousesInteractorInterface, Measurement, AssessmentInteractorInterface
-from managers.interfaces import UpdaterInterface
-from managers.statistic.models import Greenhouse, Metering, MeteringType, StatusHistory
 from infrastructure.database import async_session_maker
+from infrastructure.interfaces import (AssessmentInteractorInterface,
+                                       GreenhousesInteractorInterface,
+                                       Measurement, MeteringRequest)
+from log4py import logger
+from managers.interfaces import UpdaterInterface
+from managers.statistic.models import (Greenhouse, Metering, MeteringType,
+                                       StatusHistory)
 from sqlalchemy import and_, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class Updater(UpdaterInterface):
@@ -62,12 +63,20 @@ class Updater(UpdaterInterface):
 
             dt_to = datetime.now()
             dt_from = dt_to - timedelta(hours=24)
-            request = MeteringRequest(greenhouses=greenhouse_ids, dt_from=dt_from, dt_to=dt_to)
+            request = MeteringRequest(
+                greenhouses=greenhouse_ids, dt_from=dt_from, dt_to=dt_to
+            )
 
-            temperature_data = await self.greenhouses_interactor.get_temperature_metering(request)
-            temperature_data = await self._process_meterings(temperature_data, "temperature")
+            temperature_data = (
+                await self.greenhouses_interactor.get_temperature_metering(request)
+            )
+            temperature_data = await self._process_meterings(
+                temperature_data, "temperature"
+            )
 
-            humidity_data = await self.greenhouses_interactor.get_humidity_metering(request)
+            humidity_data = await self.greenhouses_interactor.get_humidity_metering(
+                request
+            )
             humidity_data = await self._process_meterings(humidity_data, "humidity")
 
             ph_data = await self.greenhouses_interactor.get_ph_metering(request)
@@ -77,7 +86,9 @@ class Updater(UpdaterInterface):
             await self._save_unique_meterings("humidity", humidity_data, session)
             await self._save_unique_meterings("ph", ph_data, session)
 
-    async def _save_unique_meterings(self, metering_type_name: str, data: list[dict], session: AsyncSession):
+    async def _save_unique_meterings(
+        self, metering_type_name: str, data: list[dict], session: AsyncSession
+    ):
         type_id = await self._get_type_id(session, metering_type_name)
         if not type_id:
             logger.warning(f"Skipping unknown metering type: {metering_type_name}")
@@ -145,9 +156,13 @@ class Updater(UpdaterInterface):
             measurements = await self._get_measurements_for_greenhouse(gid)
 
             try:
-                state_response = await self.assessment_interactor.get_greenhouse_state(measurements)
+                state_response = await self.assessment_interactor.get_greenhouse_state(
+                    measurements
+                )
                 if not state_response or "state" not in state_response:
-                    logger.warning(f"Invalid state response for greenhouse {gid}: {state_response}")
+                    logger.warning(
+                        f"Invalid state response for greenhouse {gid}: {state_response}"
+                    )
                     continue
 
                 await self._update_greenhouse_state(gid, state_response["state"])
@@ -155,7 +170,9 @@ class Updater(UpdaterInterface):
             except Exception as exc:
                 logger.error(f"Failed to update state for greenhouse {gid}: {exc}")
 
-    async def _get_measurements_for_greenhouse(self, greenhouse_id: int) -> list[Measurement]:
+    async def _get_measurements_for_greenhouse(
+        self, greenhouse_id: int
+    ) -> list[Measurement]:
         async with async_session_maker() as session:
             dt_to = datetime.now()
             dt_from = dt_to - timedelta(hours=24)
@@ -205,7 +222,9 @@ class Updater(UpdaterInterface):
                 current_state = result.scalar_one_or_none()
 
                 if current_state == new_state:
-                    logger.debug(f"Greenhouse {greenhouse_id}: state unchanged ({new_state})")
+                    logger.debug(
+                        f"Greenhouse {greenhouse_id}: state unchanged ({new_state})"
+                    )
                     return
 
                 await session.execute(
@@ -229,9 +248,7 @@ class Updater(UpdaterInterface):
             await session.commit()
 
     async def _process_meterings(
-            self,
-            data: list[dict[str, Any]],
-            metering_type_name: str
+        self, data: list[dict[str, Any]], metering_type_name: str
     ) -> list[dict[str, Any]]:
 
         async with async_session_maker() as session:
@@ -241,7 +258,8 @@ class Updater(UpdaterInterface):
 
             if not metering_type:
                 logger.warning(
-                    f"_process_meterings: unknown metering type '{metering_type_name}' — returning original data")
+                    f"_process_meterings: unknown metering type '{metering_type_name}' — returning original data"
+                )
                 return data
 
             result_data: list[dict[str, Any]] = []
@@ -253,15 +271,12 @@ class Updater(UpdaterInterface):
                 dt_to = datetime.now()
                 dt_from = dt_to - timedelta(days=30)
 
-                hist_q = (
-                    select(Metering.value)
-                    .where(
-                        and_(
-                            Metering.greenhouse_id == gid,
-                            Metering.metering_type_id == metering_type.id,
-                            Metering.updated_at >= dt_from,
-                            Metering.updated_at <= dt_to,
-                        )
+                hist_q = select(Metering.value).where(
+                    and_(
+                        Metering.greenhouse_id == gid,
+                        Metering.metering_type_id == metering_type.id,
+                        Metering.updated_at >= dt_from,
+                        Metering.updated_at <= dt_to,
                     )
                 )
                 hist_res = await session.execute(hist_q)
@@ -274,7 +289,7 @@ class Updater(UpdaterInterface):
                         except Exception:
                             continue
 
-                avg_value= mean(hist_values) if hist_values else None
+                avg_value = mean(hist_values) if hist_values else None
 
                 cleaned_points = []
                 last_value = None
@@ -298,11 +313,16 @@ class Updater(UpdaterInterface):
                     if smoothed_value is None and last_value is not None:
                         smoothed_value = last_value
                         logger.info(
-                            f"Greenhouse {gid} at {dt_str}: missing value replaced with last known {smoothed_value}")
+                            f"Greenhouse {gid} at {dt_str}: missing value replaced with last known {smoothed_value}"
+                        )
 
                     if avg_value is not None and smoothed_value is not None:
                         try:
-                            deviation = abs(smoothed_value - avg_value) / avg_value if avg_value != 0 else 0.0
+                            deviation = (
+                                abs(smoothed_value - avg_value) / avg_value
+                                if avg_value != 0
+                                else 0.0
+                            )
                         except Exception:
                             deviation = 0.0
 
@@ -311,7 +331,9 @@ class Updater(UpdaterInterface):
                                 f"Greenhouse {gid} at {dt_str}: detected outlier {smoothed_value} "
                                 f"(deviation {deviation:.3f} > 0.1) — replaced with last known {last_value if last_value is not None else avg_value}"
                             )
-                            smoothed_value = last_value if last_value is not None else avg_value
+                            smoothed_value = (
+                                last_value if last_value is not None else avg_value
+                            )
 
                     if smoothed_value is not None:
                         smoothed_value = round(float(smoothed_value), 3)

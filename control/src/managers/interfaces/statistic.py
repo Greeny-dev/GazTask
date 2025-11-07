@@ -7,7 +7,9 @@ class StatisticManagerInterface(ABC):
         pass
 
     @abstractmethod
-    async def get_greenhouses_statistics(self, region_id: int | None, state: int | None):
+    async def get_greenhouses_statistics(
+        self, region_id: int | None, state: int | None
+    ):
         pass
 
     @abstractmethod

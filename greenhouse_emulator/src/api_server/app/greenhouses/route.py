@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, status
-
 from managers.interfaces import GreenhousesManagerInterface
 
 from . import dependency, schema

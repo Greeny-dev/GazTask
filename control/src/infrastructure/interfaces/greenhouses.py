@@ -1,6 +1,6 @@
-from datetime import datetime
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
+from datetime import datetime
 
 
 @dataclass
@@ -25,16 +25,13 @@ class GreenhousesInteractorInterface(ABC):
     async def get_greenhouse_info(self, greenhouse_id: int):
         pass
 
-
     @abstractmethod
     async def get_temperature_metering(self, request: MeteringRequest):
         pass
 
-
     @abstractmethod
     async def get_humidity_metering(self, request: MeteringRequest):
         pass
-
 
     @abstractmethod
     async def get_ph_metering(self, request: MeteringRequest):

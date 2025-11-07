@@ -1,8 +1,10 @@
 import base64
 import hashlib
-from sqlalchemy import select
+
 from infrastructure.database import async_session_maker
 from infrastructure.interfaces import AuthServiceInterface
+from sqlalchemy import select
+
 from .models import Users
 
 

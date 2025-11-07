@@ -5,12 +5,8 @@ import ssl
 from typing import Any, Awaitable, Callable, Type
 
 from uvicorn import Config
-from uvicorn.config import (
-    HTTPProtocolType,
-    InterfaceType,
-    LifespanType,
-    WSProtocolType,
-)
+from uvicorn.config import (HTTPProtocolType, InterfaceType, LifespanType,
+                            WSProtocolType)
 
 
 class DefaultConfig(Config):
@@ -26,7 +22,7 @@ class DisableLoggingConfig(DefaultConfig):
         port: int,
         uds: str | None = None,
         fd: int | None = None,
-        loop = "auto",
+        loop="auto",
         http: HTTPProtocolType | Type[asyncio.Protocol] = "auto",
         ws: WSProtocolType | Type[asyncio.Protocol] = "auto",
         ws_max_size: int = 16 * 1024 * 1024,

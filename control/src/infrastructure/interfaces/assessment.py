@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime
 
 
@@ -17,6 +17,7 @@ class Measurement:
             data["timestamp"] = self.timestamp.isoformat()
 
         return data
+
 
 class AssessmentInteractorInterface(ABC):
     @abstractmethod

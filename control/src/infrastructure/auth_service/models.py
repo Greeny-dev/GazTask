@@ -1,11 +1,10 @@
-'''
+"""
 Obviously, no database queries should be made here.
 This is an external service, but for the sake of emulation, this is what we have to do.
-'''
-
-from sqlalchemy import (Column, Boolean, Integer, String, DateTime, func)
+"""
 
 from infrastructure.database import Base
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, func
 
 
 class Users(Base):
@@ -18,4 +17,6 @@ class Users(Base):
     is_admin = Column(Boolean, default=False)
 
     def __repr__(self):
-        return f"<User(id={self.id}, username='{self.username}', admin={self.is_admin})>"
+        return (
+            f"<User(id={self.id}, username='{self.username}', admin={self.is_admin})>"
+        )

@@ -1,8 +1,9 @@
-from fastapi import FastAPI
-
-from log4py.rest_logs import DisableLoggingConfig, RequestLoggingMiddleware, RequestIDMiddleware
-from log4py import logger
 import uvicorn
+from fastapi import FastAPI
+from log4py import logger
+from log4py.rest_logs import (DisableLoggingConfig, RequestIDMiddleware,
+                              RequestLoggingMiddleware)
+
 from .route import router
 
 

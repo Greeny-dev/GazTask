@@ -1,10 +1,9 @@
 import json
 
+from log4py import extra_templates, logger
 from starlette.datastructures import Headers
 from starlette.requests import Request
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
-
-from log4py import extra_templates, logger
 
 from .. import environment as env
 from .. import specs
