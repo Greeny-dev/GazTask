@@ -21,15 +21,3 @@ docker-compose up --build
       API_SERVER_PORT: api_server_port
       GREENHOUSE_SERVICE: greenhouse_service_url 
       ASSESSMENT_SERVICE: greenhouse_service_url 
-
-
-## Updates 
-
-Очевидно: для полноценной prod реализации не хватает следующих аспектов: 
-
-- Написанных unit/интеграционных тестов. 
-- Обработки ошибок (частично зависит от пункта 1). Пример можно встретить [здесь.](./src/infrastructure/greenhouses_service/errors.py)
-- Грамотной системы логирования.
-
-Их отсутствие связано с занятостью dev-а. Каждая из этих категорий будет реализована в последующих версиях. Следите за обновлением [api схемы](./api/openapi.json)
-
